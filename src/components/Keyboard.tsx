@@ -28,8 +28,9 @@ export function Keyboard({
   const gap = 4;
 
   return (
-    <div className="mx-auto w-full overflow-x-auto">
-      <div className="mx-auto inline-flex items-end gap-3 rounded-xl border border-border bg-bg-elev p-3 shadow-soft sm:p-4">
+    <div className="w-full overflow-x-auto">
+      <div className="flex w-full justify-center px-2">
+        <div className="inline-flex items-end gap-3 rounded-xl border border-border bg-bg-elev p-3 shadow-soft sm:p-4">
         {/* Основная клавиатура */}
         <div>
           {([0, 1, 2, 3, 4, 5] as const).map((rowIdx) => (
@@ -76,6 +77,7 @@ export function Keyboard({
             <ArrowKey k={ARROW_KEYS[2]} unit={unit} />
             <ArrowKey k={ARROW_KEYS[3]} unit={unit} />
           </div>
+        </div>
         </div>
       </div>
     </div>
