@@ -39,10 +39,10 @@ export function setSoundEnabled(on: boolean) {
 }
 
 export function getVolume(): number {
-  if (typeof window === 'undefined') return 0.35;
+  if (typeof window === 'undefined') return 0.75;
   const raw = window.localStorage.getItem('tt:sound-vol');
-  const n = raw ? parseFloat(raw) : 0.35;
-  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.35;
+  const n = raw ? parseFloat(raw) : 0.75;
+  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.75;
 }
 
 export function setVolume(v: number) {
@@ -151,6 +151,11 @@ async function ensureBuffers(): Promise<void> {
   return buffersLoading;
 }
 
+// После прохождения через bandpass шум теряет до ~70% амплитуды,
+// поэтому выходной gain приходится поднимать значительно выше 1.0,
+// чтобы итоговый клик был слышен на комфортной громкости.
+const OUTPUT_GAIN_BOOST = 3.2;
+
 function playBuffer(buffer: AudioBuffer, gainVal: number, rateJitter = 0) {
   if (!isSoundEnabled()) return;
   const ac = getCtx();
@@ -161,7 +166,7 @@ function playBuffer(buffer: AudioBuffer, gainVal: number, rateJitter = 0) {
     source.buffer = buffer;
     source.playbackRate.value = 1 + (Math.random() - 0.5) * rateJitter;
     const g = ac.createGain();
-    g.gain.value = gainVal * getVolume();
+    g.gain.value = Math.min(1, gainVal * getVolume() * OUTPUT_GAIN_BOOST);
     source.connect(g).connect(ac.destination);
     source.start();
   } catch {
@@ -216,11 +221,11 @@ export function playFinish() {
       osc.frequency.value = freq;
       const t0 = ac.currentTime + i * 0.09;
       amp.gain.setValueAtTime(0, t0);
-      amp.gain.linearRampToValueAtTime(getVolume() * 0.4, t0 + 0.01);
-      amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+      amp.gain.linearRampToValueAtTime(Math.min(0.9, getVolume() * 0.9), t0 + 0.01);
+      amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
       osc.connect(amp).connect(ac.destination);
       osc.start(t0);
-      osc.stop(t0 + 0.2);
+      osc.stop(t0 + 0.25);
     });
   } catch {
     // noop
