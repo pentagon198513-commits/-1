@@ -14,7 +14,7 @@ import { Button, Container, Card } from '@/components/UI';
 import { keyForChar, fingerLabel } from '@/features/keyboard/layout';
 import { appendAttempt, loadProfile, saveProfile } from '@/lib/storage';
 import { applyAttempt } from '@/features/gamification/xp';
-import { playCorrect, playWrong, playFinish } from '@/features/typing/sound';
+import { playCorrect, playWrong, playFinish, preloadSounds } from '@/features/typing/sound';
 import type { AttemptResult, UserProfile } from '@/types';
 
 type Phase = 'intro' | 'training' | 'results';
@@ -30,7 +30,46 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
 
   if (!lesson) notFound();
 
+  // При открытии урока восстанавливаем сохранённый textIndex и помечаем
+  // этот урок как «последний открытый» в профиле (для продолжения после
+  // перезагрузки страницы или смены устройства с импортом бэкапа).
+  useEffect(() => {
+    const profile = loadProfile();
+    if (!profile) return;
+    const saved = profile.lessonProgress?.[lesson!.id];
+    if (saved && typeof saved.textIndex === 'number') {
+      const safeIdx = Math.min(saved.textIndex, lesson!.texts.length - 1);
+      setTextIndex(safeIdx);
+    }
+    saveProfile({
+      ...profile,
+      lastLessonId: lesson!.id,
+      lessonProgress: {
+        ...(profile.lessonProgress ?? {}),
+        [lesson!.id]: {
+          textIndex: saved?.textIndex ?? 0,
+          updatedAt: Date.now(),
+        },
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson!.id]);
+
   const text = useMemo(() => lesson!.texts[textIndex] ?? lesson!.texts[0], [lesson, textIndex]);
+
+  // Сохраняем смену текста в уроке
+  useEffect(() => {
+    const profile = loadProfile();
+    if (!profile) return;
+    saveProfile({
+      ...profile,
+      lessonProgress: {
+        ...(profile.lessonProgress ?? {}),
+        [lesson!.id]: { textIndex, updatedAt: Date.now() },
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textIndex, lesson!.id]);
 
   const handleFinish = useCallback(
     (snap: TypingSnapshot) => {
@@ -83,7 +122,7 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
       handleChar(e.key);
       const ok = e.key === expected;
       setLastKey({ char: e.key.toLowerCase(), ok });
-      if (ok) playCorrect();
+      if (ok) playCorrect(e.key);
       else playWrong();
     };
     window.addEventListener('keydown', onKeyDown);
@@ -91,7 +130,10 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
   }, [phase, handleChar, handleBackspace, reset, state.cursor, state.text]);
 
   useEffect(() => {
-    if (phase === 'training') containerRef.current?.focus();
+    if (phase === 'training') {
+      containerRef.current?.focus();
+      preloadSounds();
+    }
   }, [phase]);
 
   const target = state.nextChar ? keyForChar(state.nextChar) : undefined;

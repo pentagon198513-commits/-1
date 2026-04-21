@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Card, Container, LinkButton, SectionTitle } from '@/components/UI';
+import { ContinueButton } from '@/components/ContinueButton';
 
 export default function HomePage() {
   return (
@@ -16,11 +17,15 @@ export default function HomePage() {
           статистика и виртуальная клавиатура с подсказкой пальцев.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="/lessons">Начать обучение</LinkButton>
+          <LinkButton href="/lessons">Все уроки</LinkButton>
           <LinkButton href="/train/L1-1" variant="outline">
             Попробовать первый урок
           </LinkButton>
         </div>
+      </section>
+
+      <section className="mx-auto mb-12 max-w-3xl">
+        <ContinueButton />
       </section>
 
       <SectionTitle title="Как это работает" />

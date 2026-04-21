@@ -63,6 +63,8 @@ export interface UserProfile {
   lastActiveDay: string | null;
   completedLessons: string[];
   achievements: string[];
+  lastLessonId?: string | null;
+  lessonProgress?: Record<string, { textIndex: number; updatedAt: number }>;
 }
 
 export interface UserStats {
