@@ -16,10 +16,14 @@ export interface KeyDef {
   shifted?: string;
   finger: Finger;
   hand: Hand;
-  row: 0 | 1 | 2 | 3 | 4;
+  row: 0 | 1 | 2 | 3 | 4 | 5;
+  group?: 'main' | 'arrows';
+  gapBefore?: number;
   width?: number;
   code: string;
   label?: string;
+  isModifier?: boolean;
+  homeKey?: boolean;
 }
 
 export type LessonKind = 'drill' | 'words' | 'sentences' | 'paragraphs' | 'speed';
