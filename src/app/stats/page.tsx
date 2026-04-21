@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Container, Card, SectionTitle, LinkButton, Button } from '@/components/UI';
-import { loadProfile, loadStats, resetAll } from '@/lib/storage';
+import { loadProfile, loadStats, resetCurrentProfile } from '@/lib/storage';
 import type { UserProfile, UserStats } from '@/types';
 import { levelFromXP } from '@/features/gamification/xp';
 import { ACHIEVEMENTS, getUnlockedAchievements } from '@/features/gamification/achievements';
@@ -14,8 +14,13 @@ export default function StatsPage() {
   const [stats, setStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
-    setProfile(loadProfile());
-    setStats(loadStats());
+    const refresh = () => {
+      setProfile(loadProfile());
+      setStats(loadStats());
+    };
+    refresh();
+    window.addEventListener('tt:profile-changed', refresh);
+    return () => window.removeEventListener('tt:profile-changed', refresh);
   }, []);
 
   if (!profile || !stats) {
@@ -61,9 +66,8 @@ export default function StatsPage() {
           <Button
             variant="ghost"
             onClick={() => {
-              if (confirm('Сбросить весь прогресс?')) {
-                resetAll();
-                window.location.reload();
+              if (confirm('Сбросить прогресс текущего профиля?')) {
+                resetCurrentProfile();
               }
             }}
           >

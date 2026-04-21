@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
+import { SoundToggle } from './SoundToggle';
+import { LogoMark } from './LogoMark';
+import { ProfileBadge } from './ProfileBadge';
 import clsx from '@/lib/clsx';
 
 const links = [
@@ -19,7 +22,7 @@ export function Navigation() {
     <header className="sticky top-0 z-10 border-b border-border bg-bg/80 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2 text-sm font-semibold">
-          <span className="inline-block h-6 w-6 rounded-md bg-accent"></span>
+          <LogoMark />
           <span>Слепая печать</span>
         </Link>
         <div className="hidden gap-1 sm:flex">
@@ -41,7 +44,11 @@ export function Navigation() {
             );
           })}
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <ProfileBadge />
+          <SoundToggle />
+          <ThemeToggle />
+        </div>
       </nav>
     </header>
   );

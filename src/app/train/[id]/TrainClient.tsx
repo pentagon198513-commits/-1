@@ -14,23 +14,10 @@ import { Button, Container, Card } from '@/components/UI';
 import { keyForChar, fingerLabel } from '@/features/keyboard/layout';
 import { appendAttempt, loadProfile, saveProfile } from '@/lib/storage';
 import { applyAttempt } from '@/features/gamification/xp';
+import { playCorrect, playWrong, playFinish } from '@/features/typing/sound';
 import type { AttemptResult, UserProfile } from '@/types';
 
 type Phase = 'intro' | 'training' | 'results';
-
-function getInitialProfile(): UserProfile {
-  return {
-    id: 'local',
-    name: 'Сотрудник',
-    createdAt: Date.now(),
-    xp: 0,
-    level: 1,
-    streakDays: 0,
-    lastActiveDay: null,
-    completedLessons: [],
-    achievements: [],
-  };
-}
 
 export default function TrainClient({ lessonId }: { lessonId: string }) {
   const lesson = getLesson(lessonId);
@@ -49,6 +36,7 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
     (snap: TypingSnapshot) => {
       setFinishSnap(snap);
       setPhase('results');
+      playFinish();
       const attempt: AttemptResult = {
         lessonId: lesson!.id,
         wpm: snap.wpm,
@@ -61,9 +49,11 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
         perCharErrors: snap.perCharErrors,
       };
       appendAttempt(attempt);
-      const profile = loadProfile() ?? getInitialProfile();
-      const updated = applyAttempt(profile, attempt);
-      saveProfile(updated);
+      const profile = loadProfile();
+      if (profile) {
+        const updated = applyAttempt(profile, attempt);
+        saveProfile(updated);
+      }
     },
     [lesson],
   );
@@ -91,7 +81,10 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
       e.preventDefault();
       const expected = state.text[state.cursor];
       handleChar(e.key);
-      setLastKey({ char: e.key.toLowerCase(), ok: e.key === expected });
+      const ok = e.key === expected;
+      setLastKey({ char: e.key.toLowerCase(), ok });
+      if (ok) playCorrect();
+      else playWrong();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);

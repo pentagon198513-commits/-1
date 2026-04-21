@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navigation } from '@/components/Navigation';
+import { ProfileGate } from '@/components/ProfileGate';
 
 export const metadata: Metadata = {
   title: 'Слепая печать — Тренажёр для сотрудников',
@@ -13,11 +14,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <Navigation />
-          <main className="pb-16 pt-8 animate-fade-in">{children}</main>
-          <footer className="border-t border-border py-6 text-center text-xs text-fg-subtle">
-            Made with care · Внутренний тренажёр компании
-          </footer>
+          <ProfileGate>
+            <Navigation />
+            <main className="pb-16 pt-8 animate-fade-in">{children}</main>
+            <footer className="border-t border-border py-6 text-center text-xs text-fg-subtle">
+              Made with care · Внутренний тренажёр компании
+            </footer>
+          </ProfileGate>
         </ThemeProvider>
       </body>
     </html>
