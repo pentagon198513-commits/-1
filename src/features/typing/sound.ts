@@ -39,10 +39,10 @@ export function setSoundEnabled(on: boolean) {
 }
 
 export function getVolume(): number {
-  if (typeof window === 'undefined') return 0.75;
+  if (typeof window === 'undefined') return 0.9;
   const raw = window.localStorage.getItem('tt:sound-vol');
-  const n = raw ? parseFloat(raw) : 0.75;
-  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.75;
+  const n = raw ? parseFloat(raw) : 0.9;
+  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0.9;
 }
 
 export function setVolume(v: number) {
@@ -154,7 +154,7 @@ async function ensureBuffers(): Promise<void> {
 // После прохождения через bandpass шум теряет до ~70% амплитуды,
 // поэтому выходной gain приходится поднимать значительно выше 1.0,
 // чтобы итоговый клик был слышен на комфортной громкости.
-const OUTPUT_GAIN_BOOST = 3.2;
+const OUTPUT_GAIN_BOOST = 6.5;
 
 function playBuffer(buffer: AudioBuffer, gainVal: number, rateJitter = 0) {
   if (!isSoundEnabled()) return;
@@ -191,14 +191,33 @@ export function playCorrect(char?: string) {
   if (buf) playBuffer(buf, 1.0, 0.14);
 }
 
-// Ошибка — более глухой, низкий звук
+// Ошибка — комбинация глухого удара + короткого нисходящего пилообразного
+// тона, чтобы звук однозначно считывался как «неправильно».
 export function playWrong() {
   if (!isSoundEnabled()) return;
   if (!buffersReady) {
     ensureBuffers().then(() => playWrong());
     return;
   }
-  if (errorBuffer) playBuffer(errorBuffer, 0.9, 0.06);
+  if (errorBuffer) playBuffer(errorBuffer, 1.0, 0.06);
+  const ac = getCtx();
+  if (!ac) return;
+  try {
+    if (ac.state === 'suspended') ac.resume();
+    const osc = ac.createOscillator();
+    const amp = ac.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(260, ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110, ac.currentTime + 0.12);
+    amp.gain.setValueAtTime(0, ac.currentTime);
+    amp.gain.linearRampToValueAtTime(Math.min(0.5, getVolume() * 0.6), ac.currentTime + 0.005);
+    amp.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.14);
+    osc.connect(amp).connect(ac.destination);
+    osc.start();
+    osc.stop(ac.currentTime + 0.15);
+  } catch {
+    // noop
+  }
 }
 
 // Завершение урока — короткий «перезвон» трёх кликов

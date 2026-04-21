@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
-import { SoundToggle } from './SoundToggle';
+import { SoundControls } from './SoundControls';
 import { LogoMark } from './LogoMark';
 import { ProfileBadge } from './ProfileBadge';
 import clsx from '@/lib/clsx';
@@ -46,7 +46,7 @@ export function Navigation() {
         </div>
         <div className="flex items-center gap-2">
           <ProfileBadge />
-          <SoundToggle />
+          <SoundControls />
           <ThemeToggle />
         </div>
       </nav>
