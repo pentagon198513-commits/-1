@@ -8,6 +8,9 @@ const nextConfig = {
   trailingSlash: true,
   basePath: isProd && repo ? `/${repo}` : '',
   assetPrefix: isProd && repo ? `/${repo}/` : '',
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isProd && repo ? `/${repo}` : '',
+  },
   reactStrictMode: true,
 };
 
