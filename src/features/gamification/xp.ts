@@ -1,4 +1,5 @@
 import type { AttemptResult, UserProfile } from '@/types';
+import { getLesson } from '@/features/lessons/data';
 
 // Формула: XP = символы * точность/100 * бонус_за_скорость
 export function xpForAttempt(a: AttemptResult): number {
@@ -31,7 +32,14 @@ export function applyAttempt(profile: UserProfile, attempt: AttemptResult): User
     streak = profile.lastActiveDay === y ? profile.streakDays + 1 : 1;
   }
   const completed = new Set(profile.completedLessons);
-  if (attempt.accuracy >= 90) completed.add(attempt.lessonId);
+  const lesson = getLesson(attempt.lessonId);
+  if (
+    lesson &&
+    attempt.accuracy >= lesson.minAccuracy &&
+    attempt.wpm >= lesson.minWPM
+  ) {
+    completed.add(attempt.lessonId);
+  }
 
   return {
     ...profile,

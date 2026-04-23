@@ -43,40 +43,42 @@ export default function LessonsPage() {
                 {lessons.map((l) => {
                   const status = getLessonStatus(l.id, profile);
                   return (
-                    <Link key={l.id} href={`/train/${l.id}`} className="block">
-                      <Card
-                        className={clsx(
-                          'h-full transition',
-                          status === 'completed' && 'border-success/40 bg-success/5',
-                          status === 'current' && 'border-accent bg-accent/5 ring-2 ring-accent/30',
-                          status === 'available' && 'hover:border-accent/50',
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs">
-                            <StatusBadge status={status} />
-                            <span className="text-fg-subtle">#{l.order}</span>
-                          </div>
-                          <div className="text-xs text-fg-muted">
-                            цель: {l.minWPM} WPM · {l.minAccuracy}%
-                          </div>
+                    <Card
+                      key={l.id}
+                      className={clsx(
+                        'flex h-full flex-col transition',
+                        status === 'completed' && 'border-success/40 bg-success/5',
+                        status === 'current' && 'border-accent bg-accent/5 ring-2 ring-accent/30',
+                        status === 'locked' && 'opacity-70',
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs">
+                          <StatusBadge status={status} />
+                          <span className="text-fg-subtle">#{l.order}</span>
                         </div>
-                        <div className="mt-2 text-base font-semibold">{l.title}</div>
-                        <p className="mt-1 text-sm text-fg-muted">{l.description}</p>
-                        {l.newChars && l.newChars.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {l.newChars.map((c) => (
-                              <span
-                                key={c}
-                                className="rounded-md border border-accent/40 bg-accent/10 px-2 py-0.5 text-xs font-mono text-accent"
-                              >
-                                {c}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </Card>
-                    </Link>
+                        <div className="text-xs text-fg-muted">
+                          цель: {l.minWPM} WPM · {l.minAccuracy}%
+                        </div>
+                      </div>
+                      <div className="mt-2 text-base font-semibold">{l.title}</div>
+                      <p className="mt-1 text-sm text-fg-muted">{l.description}</p>
+                      {l.newChars && l.newChars.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {l.newChars.map((c) => (
+                            <span
+                              key={c}
+                              className="rounded-md border border-accent/40 bg-accent/10 px-2 py-0.5 text-xs font-mono text-accent"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="mt-auto pt-4">
+                        <LessonAction lessonId={l.id} status={status} />
+                      </div>
+                    </Card>
                   );
                 })}
               </div>
@@ -88,7 +90,9 @@ export default function LessonsPage() {
   );
 }
 
-function StatusBadge({ status }: { status: 'completed' | 'current' | 'available' }) {
+type LessonStatus = 'completed' | 'current' | 'locked';
+
+function StatusBadge({ status }: { status: LessonStatus }) {
   if (status === 'completed')
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-success">
@@ -103,8 +107,36 @@ function StatusBadge({ status }: { status: 'completed' | 'current' | 'available'
     );
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-fg-subtle">
-      Доступно
+      🔒 Заблокирован
     </span>
+  );
+}
+
+function LessonAction({ lessonId, status }: { lessonId: string; status: LessonStatus }) {
+  if (status === 'locked') {
+    return (
+      <div className="rounded-lg border border-border bg-bg px-3 py-2 text-center text-xs text-fg-subtle">
+        Сначала выполните норму предыдущего урока
+      </div>
+    );
+  }
+  if (status === 'completed') {
+    return (
+      <Link
+        href={`/train/${lessonId}`}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-success/40 bg-success/10 px-4 py-2 text-sm font-medium text-success transition hover:bg-success/15"
+      >
+        ↻ Повторить урок
+      </Link>
+    );
+  }
+  return (
+    <Link
+      href={`/train/${lessonId}`}
+      className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition hover:brightness-110"
+    >
+      Начать урок →
+    </Link>
   );
 }
 

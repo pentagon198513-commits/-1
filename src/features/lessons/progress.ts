@@ -23,12 +23,16 @@ export function resolveContinueLesson(profile: UserProfile | null): string {
 export function getLessonStatus(
   lessonId: string,
   profile: UserProfile | null,
-): 'completed' | 'current' | 'available' {
-  if (!profile) return 'available';
-  if (profile.completedLessons.includes(lessonId)) return 'completed';
-  const current = resolveContinueLesson(profile);
-  if (current === lessonId) return 'current';
-  return 'available';
+): 'completed' | 'current' | 'locked' {
+  const completed = new Set(profile?.completedLessons ?? []);
+  if (completed.has(lessonId)) return 'completed';
+
+  const idx = LESSONS.findIndex((l) => l.id === lessonId);
+  if (idx === -1) return 'locked';
+  for (let i = 0; i < idx; i++) {
+    if (!completed.has(LESSONS[i].id)) return 'locked';
+  }
+  return 'current';
 }
 
 export function overallProgress(profile: UserProfile | null): {
