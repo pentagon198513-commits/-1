@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/code-review-wZOnK]
+    branches: [main, claude/code-review-wZOnK, claude/fix-chat-keyboard-freeze-EURsy]
   workflow_dispatch:
 
 permissions:
