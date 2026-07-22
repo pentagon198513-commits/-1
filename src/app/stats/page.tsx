@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Card, SectionTitle, LinkButton, Button } from '@/components/UI';
 import { loadProfile, loadStats, resetCurrentProfile } from '@/lib/storage';
 import type { UserProfile, UserStats } from '@/types';
@@ -56,6 +56,7 @@ export default function StatsPage() {
     .slice(0, 10);
 
   const completionPct = Math.round((profile.completedLessons.length / LESSONS.length) * 100);
+  const nextLesson = LESSONS.find((lesson) => !profile.completedLessons.includes(lesson.id)) ?? LESSONS[LESSONS.length - 1];
 
   return (
     <Container>
@@ -76,10 +77,11 @@ export default function StatsPage() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Лучшая скорость" value={`${stats.bestWPM}`} unit="WPM" />
         <StatCard label="Лучшая точность" value={`${stats.bestAccuracy}`} unit="%" />
         <StatCard label="Средняя WPM" value={`${avgWPM}`} unit="" />
+        <StatCard label="Средняя точность" value={`${avgAcc}`} unit="%" />
         <StatCard label="Прогресс уроков" value={`${completionPct}`} unit="%" />
       </div>
 
@@ -108,6 +110,18 @@ export default function StatsPage() {
                 </span>
               </div>
             ))}
+          </div>
+        </Card>
+
+        <div className="space-y-6">
+        <Card>
+          <h3 className="text-lg font-semibold">Следующий шаг</h3>
+          <p className="mt-2 text-sm text-fg-muted">
+            Продолжайте с урока «{nextLesson.title}». Цель: {nextLesson.minWPM} WPM и{' '}
+            {nextLesson.minAccuracy}% точности.
+          </p>
+          <div className="mt-4">
+            <LinkButton href={`/train/${nextLesson.id}`}>Продолжить обучение</LinkButton>
           </div>
         </Card>
 
@@ -140,6 +154,7 @@ export default function StatsPage() {
             </div>
           )}
         </Card>
+        </div>
       </div>
 
       <div className="mt-8">
@@ -171,7 +186,7 @@ export default function StatsPage() {
 
 function StatCard({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-bg-elev p-4 shadow-soft">
+    <div className="rounded-lg border border-border bg-bg-elev p-4 shadow-soft">
       <div className="text-xs uppercase tracking-wide text-fg-subtle">{label}</div>
       <div className="mt-1 flex items-baseline gap-1">
         <span className="text-3xl font-semibold tabular-nums">{value}</span>

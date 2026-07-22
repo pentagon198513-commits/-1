@@ -18,6 +18,11 @@ interface StylePack {
   rateJitter: number;
 }
 
+interface WindowWithLegacyAudio extends Window {
+  AudioContext?: typeof globalThis.AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+}
+
 const PACKS: Record<SoundStyle, StylePack> = {
   mechanical: {
     label: 'Механическая',
@@ -102,8 +107,9 @@ let buffersLoading: Promise<void> | null = null;
 function getCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   if (!ctx) {
+    const audioWindow = window as WindowWithLegacyAudio;
     const Ctor: typeof AudioContext | undefined =
-      (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioWindow.AudioContext || audioWindow.webkitAudioContext;
     if (!Ctor) return null;
     try {
       ctx = new Ctor();

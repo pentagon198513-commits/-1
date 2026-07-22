@@ -46,12 +46,12 @@ export function SoundControls() {
         onClick={() => setOpen((v) => !v)}
         title="Настройки звука"
         aria-label="Настройки звука"
-        className="rounded-lg border border-border bg-bg-elev px-3 py-1.5 text-sm text-fg-muted hover:text-fg hover:border-fg-muted"
+        className="rounded-md border border-border bg-bg-elev px-3 py-1.5 text-sm text-fg-muted hover:border-fg-muted hover:text-fg"
       >
         {on ? (vol < 0.01 ? '🔈' : vol < 0.5 ? '🔉' : '🔊') : '🔇'}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-lg border border-border bg-bg-elev p-3 shadow-soft">
+        <div className="absolute right-0 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-lg border border-border bg-bg-elev p-3 shadow-soft">
           <div className="flex items-center justify-between">
             <div className="text-xs font-semibold uppercase tracking-wide text-fg-subtle">
               Звук клавиатуры

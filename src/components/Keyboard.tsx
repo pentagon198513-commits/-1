@@ -24,13 +24,19 @@ export function Keyboard({
   compact = false,
 }: Props) {
   const target = nextChar ? keyForChar(nextChar) : undefined;
-  const unit = compact ? 28 : 42;
+  const unit = compact ? 28 : 40;
   const gap = 4;
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="flex w-full justify-center px-2">
-        <div className="inline-flex items-end gap-3 rounded-xl border border-border bg-bg-elev p-3 shadow-soft sm:p-4">
+    <div className="w-full min-w-0 overflow-x-auto pb-2">
+      <div className="flex w-max min-w-full justify-center px-1 sm:px-2">
+        <div
+          className={clsx(
+            'inline-flex origin-top items-end gap-2 rounded-lg border border-border bg-bg-elev p-2 shadow-soft sm:gap-3 sm:p-4',
+            compact && 'scale-[0.82] sm:scale-100',
+            !compact && 'scale-[0.78] sm:scale-90 lg:scale-100',
+          )}
+        >
         {/* Основная клавиатура */}
         <div>
           {([0, 1, 2, 3, 4, 5] as const).map((rowIdx) => (
@@ -65,7 +71,7 @@ export function Keyboard({
         </div>
 
         {/* Блок стрелок — отдельно справа, по высоте совпадает с нижними рядами */}
-        <div className="flex flex-col items-center" style={{ gap }}>
+        <div className="hidden flex-col items-center sm:flex" style={{ gap }}>
           <div style={{ height: unit * 4 + gap * 4 }} />
           <div style={{ display: 'flex', gap }}>
             <div style={{ width: unit }} />

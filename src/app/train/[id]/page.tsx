@@ -8,6 +8,7 @@ export function generateStaticParams() {
 
 export const dynamicParams = false;
 
-export default function TrainPage({ params }: { params: { id: string } }) {
-  return <TrainClient lessonId={params.id} />;
+export default async function TrainPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <TrainClient lessonId={id} />;
 }

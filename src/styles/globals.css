@@ -33,11 +33,30 @@
 html,
 body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
   @apply bg-bg text-fg antialiased;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+main {
+  min-width: 0;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 *,

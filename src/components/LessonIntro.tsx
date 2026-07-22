@@ -45,7 +45,7 @@ export function LessonIntro({ lesson, onStart }: Props) {
   const prev = () => step > 0 && setStep(step - 1);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <Card>
         <div className="mb-4 flex items-center gap-2">
           {Array.from({ length: totalSteps }).map((_, i) => (
@@ -71,14 +71,14 @@ export function LessonIntro({ lesson, onStart }: Props) {
           />
         )}
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           <Button variant="ghost" onClick={prev} disabled={step === 0}>
             ← Назад
           </Button>
-          <div className="text-xs text-fg-subtle">
+          <div className="text-center text-xs text-fg-subtle">
             Шаг {step + 1} из {totalSteps}
           </div>
-          <Button onClick={next}>
+          <Button onClick={next} className="justify-self-end">
             {step < totalSteps - 1 ? 'Далее →' : 'Начать тренировку'}
           </Button>
         </div>
@@ -89,9 +89,9 @@ export function LessonIntro({ lesson, onStart }: Props) {
 
 function StepPosture() {
   return (
-    <div>
+    <div className="min-w-0">
       <h2 className="text-xl font-semibold">Шаг 1. Посадка рук</h2>
-      <p className="mt-2 text-sm text-fg-muted">
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-fg-muted">
         Базовая позиция — домашний ряд. Указательные пальцы ставятся на клавиши{' '}
         <span className="rounded-md border border-accent/40 bg-accent/10 px-1.5 py-0.5 font-mono text-accent">
           А
@@ -135,9 +135,9 @@ function StepKeys({
 }) {
   const newChars = lesson.newChars ?? [];
   return (
-    <div>
+    <div className="min-w-0">
       <h2 className="text-xl font-semibold">Шаг 2. Клавиши этого урока</h2>
-      <p className="mt-2 text-sm text-fg-muted">
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-fg-muted">
         На клавиатуре ниже подсвечены только те клавиши, которые встречаются в этом уроке.
         {newChars.length > 0 && ' Зелёной рамкой выделены новые буквы.'}
       </p>
@@ -147,17 +147,17 @@ function StepKeys({
           <div className="text-xs uppercase tracking-wide text-fg-subtle">
             Новые буквы
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {newChars.map((c) => {
               const k = keyForChar(c);
               return (
                 <div
                   key={c}
-                  className="flex items-center gap-2 rounded-lg border border-success/50 bg-success/10 px-3 py-2"
+                  className="flex min-w-0 items-center gap-2 rounded-lg border border-success/50 bg-success/10 px-3 py-2"
                 >
-                  <span className="font-mono text-lg text-success">{c}</span>
+                  <span className="shrink-0 font-mono text-lg text-success">{c}</span>
                   {k && (
-                    <span className="text-xs text-fg-muted">
+                    <span className="min-w-0 truncate text-xs text-fg-muted">
                       · {fingerLabel(k.finger)}
                     </span>
                   )}
@@ -205,9 +205,9 @@ function StepFingers({
   }, [charsInLesson]);
 
   return (
-    <div>
+    <div className="min-w-0">
       <h2 className="text-xl font-semibold">Шаг 3. Какой палец что нажимает</h2>
-      <p className="mt-2 text-sm text-fg-muted">
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-fg-muted">
         Каждому пальцу — свои клавиши. Наведите курсор на палец — подсветятся его клавиши.
       </p>
 
@@ -224,23 +224,23 @@ function StepFingers({
               onMouseEnter={() => setHoveredFinger(f)}
               onMouseLeave={() => setHoveredFinger(null)}
               className={clsx(
-                'flex items-center justify-between rounded-lg border px-3 py-2 transition',
+                'flex min-w-0 flex-col gap-2 rounded-lg border px-3 py-2 transition sm:flex-row sm:items-center sm:justify-between',
                 hoveredFinger === f
                   ? 'border-accent bg-accent/5'
                   : 'border-border bg-bg-elev',
               )}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <span
                   className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: fingerColor(f) }}
                 />
-                <span className="text-sm">{fingerLabel(f)}</span>
-                <span className="text-xs text-fg-subtle">
+                <span className="min-w-0 truncate text-sm">{fingerLabel(f)}</span>
+                <span className="shrink-0 text-xs text-fg-subtle">
                   · дом. {HOME_KEYS_BY_FINGER[f] === ' ' ? '␣' : HOME_KEYS_BY_FINGER[f]}
                 </span>
               </div>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {chars.map((c) => (
                   <span
                     key={c}

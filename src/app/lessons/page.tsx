@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Container, SectionTitle, Card } from '@/components/UI';
-import { LESSONS, LEVELS, getLessonsByLevel } from '@/features/lessons/data';
+import { LEVELS, getLessonsByLevel } from '@/features/lessons/data';
 import { getLessonStatus, overallProgress } from '@/features/lessons/progress';
 import { loadProfile } from '@/lib/storage';
 import type { UserProfile } from '@/types';
@@ -27,6 +27,21 @@ export default function LessonsPage() {
         title="Программа обучения"
         subtitle={`${progress.completed} из ${progress.total} уроков пройдено · ${progress.percent}%`}
       />
+
+      <Card className="mb-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-sm font-semibold">Маршрут обучения</div>
+            <p className="text-sm text-fg-muted">
+              Проходите уроки по порядку: точность открывает скорость.
+            </p>
+          </div>
+          <div className="text-sm tabular-nums text-fg-muted">{progress.percent}%</div>
+        </div>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-bg">
+          <div className="h-full bg-accent" style={{ width: `${progress.percent}%` }} />
+        </div>
+      </Card>
 
       <div className="space-y-8">
         {LEVELS.map((level) => {
@@ -52,12 +67,12 @@ export default function LessonsPage() {
                           status === 'available' && 'hover:border-accent/50',
                         )}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 items-center gap-2 text-xs">
                             <StatusBadge status={status} />
                             <span className="text-fg-subtle">#{l.order}</span>
                           </div>
-                          <div className="text-xs text-fg-muted">
+                          <div className="text-xs text-fg-muted sm:text-right">
                             цель: {l.minWPM} WPM · {l.minAccuracy}%
                           </div>
                         </div>

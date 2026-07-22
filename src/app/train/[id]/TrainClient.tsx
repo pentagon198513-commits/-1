@@ -15,7 +15,7 @@ import { keyForChar, fingerLabel } from '@/features/keyboard/layout';
 import { appendAttempt, loadProfile, saveProfile } from '@/lib/storage';
 import { applyAttempt } from '@/features/gamification/xp';
 import { playCorrect, playWrong, playFinish, preloadSounds } from '@/features/typing/sound';
-import type { AttemptResult, UserProfile } from '@/types';
+import type { AttemptResult } from '@/types';
 
 type Phase = 'intro' | 'training' | 'results';
 
@@ -26,7 +26,9 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
   const [textIndex, setTextIndex] = useState(0);
   const [lastKey, setLastKey] = useState<{ char: string; ok: boolean } | null>(null);
   const [finishSnap, setFinishSnap] = useState<TypingSnapshot | null>(null);
+  const [isTypingFocused, setIsTypingFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   if (!lesson) notFound();
 
@@ -102,9 +104,22 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
     onFinish: handleFinish,
   });
 
+  const processChar = useCallback(
+    (input: string) => {
+      const expected = state.text[state.cursor];
+      handleChar(input);
+      const ok = input === expected;
+      setLastKey({ char: input.toLowerCase(), ok });
+      if (ok) playCorrect(input);
+      else playWrong();
+    },
+    [handleChar, state.cursor, state.text],
+  );
+
   useEffect(() => {
     if (phase !== 'training') return;
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.target === inputRef.current) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === 'Backspace') {
         e.preventDefault();
@@ -118,20 +133,16 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
       }
       if (e.key.length !== 1) return;
       e.preventDefault();
-      const expected = state.text[state.cursor];
-      handleChar(e.key);
-      const ok = e.key === expected;
-      setLastKey({ char: e.key.toLowerCase(), ok });
-      if (ok) playCorrect(e.key);
-      else playWrong();
+      processChar(e.key);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [phase, handleChar, handleBackspace, reset, state.cursor, state.text]);
+  }, [phase, handleBackspace, processChar, reset]);
 
   useEffect(() => {
     if (phase === 'training') {
       containerRef.current?.focus();
+      inputRef.current?.focus();
       preloadSounds();
     }
   }, [phase]);
@@ -172,13 +183,51 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
         <div
           ref={containerRef}
           tabIndex={0}
-          className="outline-none"
+          className="min-w-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           aria-label="Область тренировки. Начните печатать."
+          onClick={() => inputRef.current?.focus()}
+          onFocus={() => setIsTypingFocused(true)}
+          onBlur={() => setIsTypingFocused(false)}
         >
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div />
+          <textarea
+            ref={inputRef}
+            value=""
+            aria-label="Поле ввода тренировки"
+            className="sr-only"
+            onBeforeInput={(e) => {
+              const data = (e.nativeEvent as InputEvent).data;
+              if (!data) return;
+              e.preventDefault();
+              for (const char of Array.from(data)) {
+                processChar(char);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.ctrlKey || e.metaKey || e.altKey) return;
+              if (e.key === 'Backspace') {
+                e.preventDefault();
+                handleBackspace();
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                reset();
+                setFinishSnap(null);
+              }
+            }}
+            onChange={() => undefined}
+          />
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <TrainingCoach
+              focused={isTypingFocused}
+              started={state.startedAt !== null}
+              errors={state.errors}
+              accuracy={state.accuracy}
+              minWPM={lesson!.minWPM}
+              minAccuracy={lesson!.minAccuracy}
+            />
             <Button
               variant="outline"
+              className="self-start lg:self-auto"
               onClick={() => {
                 reset();
                 setFinishSnap(null);
@@ -198,12 +247,17 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
           </div>
 
           {target && (
-            <div className="mb-3 flex flex-wrap items-center justify-center gap-2 text-sm text-fg-muted">
-              <span>Следующий символ:</span>
-              <span className="rounded-md border border-warning bg-warning/15 px-2 py-0.5 font-mono text-warning">
-                {state.nextChar === ' ' ? '␣' : state.nextChar}
+            <div className="mb-3 grid gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-fg-muted sm:grid-cols-[1fr_auto] sm:items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                <span>Следующий символ:</span>
+                <span className="rounded-md border border-warning bg-warning/15 px-2 py-0.5 font-mono text-warning">
+                  {state.nextChar === ' ' ? '␣' : state.nextChar}
+                </span>
+                <span>— {fingerLabel(target.finger)}</span>
+              </div>
+              <span className="text-xs text-fg-subtle">
+                Сначала точность, потом скорость
               </span>
-              <span>— {fingerLabel(target.finger)}</span>
             </div>
           )}
 
@@ -217,8 +271,8 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
             <HandsGuide activeFinger={target?.finger ?? null} showLegend={false} />
           </div>
 
-          <div className="mt-8 text-center text-xs text-fg-subtle">
-            Подсказка: Esc — сбросить, Backspace — стереть символ.
+          <div className="mt-8 rounded-lg border border-border bg-bg-elev px-3 py-2 text-center text-xs text-fg-subtle">
+            Esc — сбросить, Backspace — стереть символ. На телефоне тренировка удобнее с внешней клавиатурой.
           </div>
         </div>
       )}
@@ -234,7 +288,7 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
           <div className="mt-2 text-sm text-fg-muted">
             Цель: {lesson!.minWPM} WPM · {lesson!.minAccuracy}% точности.
           </div>
-          <div className="mx-auto mt-4 grid max-w-lg grid-cols-3 gap-3">
+          <div className="mx-auto mt-4 grid max-w-lg gap-3 sm:grid-cols-3">
             <ResultMetric label="Скорость" value={`${finishSnap.cpm}`} unit="зн/мин" />
             <ResultMetric label="Точность" value={`${finishSnap.accuracy}`} unit="%" />
             <ResultMetric label="WPM" value={`${finishSnap.wpm}`} unit="" />
@@ -278,9 +332,47 @@ export default function TrainClient({ lessonId }: { lessonId: string }) {
   );
 }
 
+function TrainingCoach({
+  focused,
+  started,
+  errors,
+  accuracy,
+  minWPM,
+  minAccuracy,
+}: {
+  focused: boolean;
+  started: boolean;
+  errors: number;
+  accuracy: number;
+  minWPM: number;
+  minAccuracy: number;
+}) {
+  const message = !started
+    ? focused
+      ? 'Печатайте текст ниже. Ошибки не страшны, сервис покажет слабые буквы.'
+      : 'Нажмите на область тренировки и начните печатать.'
+    : errors > 0
+      ? 'Есть ошибки. Замедлитесь и возвращайте пальцы на домашний ряд.'
+      : 'Ритм хороший. Держите ровный темп и не смотрите на клавиатуру.';
+
+  return (
+    <div className="min-w-0 rounded-lg border border-accent/25 bg-accent/10 px-4 py-3">
+      <div className="text-xs font-semibold uppercase tracking-wide text-accent">
+        Цель урока: {minWPM} WPM · {minAccuracy}% точности
+      </div>
+      <div className="mt-1 text-sm text-fg">{message}</div>
+      {started && (
+        <div className="mt-2 text-xs text-fg-muted">
+          Текущая точность: {accuracy}%. Для зачёта важны и скорость, и аккуратность.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ResultMetric({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <div className="rounded-xl border border-border bg-bg p-4">
+    <div className="rounded-lg border border-border bg-bg p-4">
       <div className="text-xs uppercase tracking-wide text-fg-subtle">{label}</div>
       <div className="mt-1 flex items-baseline justify-center gap-1">
         <span className="text-2xl font-semibold tabular-nums">{value}</span>

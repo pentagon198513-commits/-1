@@ -49,7 +49,7 @@ export function ProfileBadge() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-lg border border-border bg-bg-elev px-3 py-1.5 text-sm text-fg hover:border-fg-muted"
+        className="flex items-center gap-2 rounded-md border border-border bg-bg-elev px-3 py-1.5 text-sm text-fg hover:border-fg-muted"
       >
         <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-fg">
           {name.slice(0, 1).toUpperCase()}
@@ -57,7 +57,7 @@ export function ProfileBadge() {
         <span className="hidden sm:inline max-w-[9rem] truncate">{name}</span>
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-64 rounded-lg border border-border bg-bg-elev p-2 shadow-soft">
+        <div className="absolute right-0 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-lg border border-border bg-bg-elev p-2 shadow-soft">
           <div className="px-2 py-1 text-xs uppercase tracking-wide text-fg-subtle">Профили</div>
           <div className="space-y-1">
             {list.map((p) => {

@@ -5,26 +5,43 @@ import { ContinueButton } from '@/components/ContinueButton';
 export default function HomePage() {
   return (
     <Container>
-      <section className="mx-auto mb-12 max-w-3xl text-center">
-        <span className="inline-block rounded-full border border-border bg-bg-elev px-3 py-1 text-xs text-fg-muted">
-          Современный тренажёр для сотрудников
-        </span>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-          Научитесь печатать вслепую на русском
-        </h1>
-        <p className="mt-4 text-lg text-fg-muted">
-          От домашнего ряда до 300 знаков в минуту. Методичные уроки, живая
-          статистика и виртуальная клавиатура с подсказкой пальцев.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="/lessons">Все уроки</LinkButton>
-          <LinkButton href="/train/L1-1" variant="outline">
-            Попробовать первый урок
-          </LinkButton>
+      <section className="mb-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
+        <div className="rounded-lg border border-border bg-bg-elev p-5 shadow-soft sm:p-7">
+          <span className="inline-block rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+            Обучающий сервис для русской раскладки
+          </span>
+          <h1 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-5xl">
+            Слепая печать без хаоса и догадок
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg">
+            Каждый урок объясняет посадку рук, показывает нужные клавиши и ведёт к
+            цели по скорости и точности.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <LinkButton href="/lessons">Открыть программу</LinkButton>
+            <LinkButton href="/train/L1-1" variant="outline">
+              Начать первый урок
+            </LinkButton>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          <Card className="bg-accent text-accent-fg">
+            <div className="text-xs uppercase tracking-wide opacity-80">План на сегодня</div>
+            <div className="mt-2 text-2xl font-semibold">10 минут практики</div>
+            <p className="mt-2 text-sm opacity-85">
+              Разминка, один урок и короткое повторение слабых букв.
+            </p>
+          </Card>
+          <div className="grid grid-cols-3 gap-3">
+            <MiniStat label="Цель" value="92%" />
+            <MiniStat label="Темп" value="20+" />
+            <MiniStat label="Серия" value="0 дн." />
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto mb-12 max-w-3xl">
+      <section className="mb-12">
         <ContinueButton />
       </section>
 
@@ -76,6 +93,15 @@ export default function HomePage() {
         </Card>
       </div>
     </Container>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-bg-elev p-4 shadow-soft">
+      <div className="text-xs uppercase tracking-wide text-fg-subtle">{label}</div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+    </div>
   );
 }
 
