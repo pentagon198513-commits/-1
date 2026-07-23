@@ -24,7 +24,7 @@ export function Keyboard({
   compact = false,
 }: Props) {
   const target = nextChar ? keyForChar(nextChar) : undefined;
-  const unit = compact ? 28 : 40;
+  const unit = compact ? 26 : 36;
   const gap = 4;
 
   return (
@@ -32,7 +32,7 @@ export function Keyboard({
       <div className="flex w-max min-w-full justify-center px-1 sm:px-2">
         <div
           className={clsx(
-            'inline-flex origin-top items-end gap-2 rounded-lg border border-border bg-bg-elev p-2 shadow-soft sm:gap-3 sm:p-4',
+            'console-grid inline-flex origin-top items-end gap-2 rounded-lg border border-accent/25 bg-bg-elev/90 p-2 shadow-[0_18px_50px_rgb(var(--accent)/0.16)] sm:gap-3 sm:p-4',
             compact && 'scale-[0.82] sm:scale-100',
             !compact && 'scale-[0.78] sm:scale-90 lg:scale-100',
           )}
@@ -93,7 +93,7 @@ export function Keyboard({
 function ArrowKey({ k, unit }: { k: KeyDef; unit: number }) {
   return (
     <div
-      className="flex items-center justify-center rounded-md border border-border/80 bg-bg text-fg-subtle shadow-[inset_0_-2px_0_rgba(0,0,0,0.06)]"
+      className="flex items-center justify-center rounded-md border border-accent/20 bg-bg-elev/80 text-fg-subtle shadow-[inset_0_-2px_0_rgba(0,0,0,0.08)]"
       style={{ width: unit, height: unit, fontSize: 16 }}
       aria-label={k.label}
     >
@@ -131,17 +131,20 @@ function Key({
       {gapBefore > 0 && <div style={{ width: gapBefore }} aria-hidden />}
       <div
         className={clsx(
-          'relative flex items-center justify-center rounded-md border text-sm font-medium select-none',
-          'transition-all duration-150 shadow-[inset_0_-2px_0_rgba(0,0,0,0.06)]',
-          k.isModifier && 'bg-bg text-fg-subtle border-border/80',
+          'relative flex select-none items-center justify-center rounded-md border text-sm font-medium',
+          'transition-all duration-150 shadow-[inset_0_-2px_0_rgba(0,0,0,0.08)]',
+          k.isModifier && 'border-border/80 bg-bg/70 text-fg-subtle',
           !k.isModifier &&
             !isTarget &&
             !isLastWrong &&
             !isLastCorrect &&
-            'bg-bg-elev text-fg border-border',
-          isTarget && 'border-warning bg-warning/20 text-warning animate-pulseKey ring-2 ring-warning/40',
-          isLastWrong && 'border-danger bg-danger/20 text-danger',
-          isLastCorrect && 'border-success bg-success/15 text-success',
+            'border-accent/20 bg-bg-elev text-fg hover:border-accent/45',
+          isTarget &&
+            'animate-pulseKey border-warning bg-warning/20 text-warning ring-2 ring-warning/50 shadow-[0_0_26px_rgb(var(--warning)/0.38)]',
+          isLastWrong &&
+            'border-danger bg-danger/20 text-danger shadow-[0_0_22px_rgb(var(--danger)/0.25)]',
+          isLastCorrect &&
+            'border-success bg-success/15 text-success shadow-[0_0_22px_rgb(var(--success)/0.22)]',
           dimmed && 'opacity-30',
         )}
         style={{ width, height }}

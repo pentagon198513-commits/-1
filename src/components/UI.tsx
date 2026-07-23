@@ -14,7 +14,7 @@ export function Card({ children, className }: { children: ReactNode; className?:
   return (
     <div
       className={clsx(
-        'min-w-0 overflow-hidden rounded-lg border border-border bg-bg-elev p-4 shadow-soft sm:p-5',
+        'min-w-0 overflow-hidden rounded-lg border border-border bg-bg-elev/90 p-4 shadow-[0_18px_45px_rgb(var(--accent)/0.1)] backdrop-blur sm:p-5',
         className,
       )}
     >
@@ -34,9 +34,11 @@ export function Button({
       className={clsx(
         'inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        variant === 'primary' && 'bg-accent text-accent-fg hover:brightness-110',
-        variant === 'ghost' && 'text-fg-muted hover:text-fg hover:bg-bg-elev',
-        variant === 'outline' && 'border border-border text-fg hover:border-fg-muted',
+        variant === 'primary' &&
+          'neon-button bg-gradient-to-r from-accent via-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-pink))] text-accent-fg hover:brightness-110',
+        variant === 'ghost' && 'text-fg-muted hover:bg-accent/10 hover:text-fg',
+        variant === 'outline' &&
+          'border border-accent/35 bg-bg-elev/70 text-fg hover:border-accent hover:bg-accent/10',
         className,
       )}
     />
@@ -59,9 +61,11 @@ export function LinkButton({
       href={href}
       className={clsx(
         'inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition',
-        variant === 'primary' && 'bg-accent text-accent-fg hover:brightness-110',
-        variant === 'ghost' && 'text-fg-muted hover:text-fg hover:bg-bg-elev',
-        variant === 'outline' && 'border border-border text-fg hover:border-fg-muted',
+        variant === 'primary' &&
+          'neon-button bg-gradient-to-r from-accent via-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-pink))] text-accent-fg hover:brightness-110',
+        variant === 'ghost' && 'text-fg-muted hover:bg-accent/10 hover:text-fg',
+        variant === 'outline' &&
+          'border border-accent/35 bg-bg-elev/70 text-fg hover:border-accent hover:bg-accent/10',
         className,
       )}
     >

@@ -6,16 +6,16 @@ export default function HomePage() {
   return (
     <Container>
       <section className="mb-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
-        <div className="rounded-lg border border-border bg-bg-elev p-5 shadow-soft sm:p-7">
-          <span className="inline-block rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-            Обучающий сервис для русской раскладки
+        <div className="neon-panel console-grid overflow-hidden rounded-lg border border-accent/25 p-5 shadow-soft sm:p-7">
+          <span className="inline-block rounded-full border border-accent/40 bg-bg-elev/70 px-3 py-1 text-xs font-semibold text-accent shadow-[0_0_24px_rgb(var(--accent)/0.18)]">
+            Игровой тренажёр русской раскладки
           </span>
           <h1 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-5xl">
-            Слепая печать без хаоса и догадок
+            Прокачайте печать как навык в игре
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg">
-            Каждый урок объясняет посадку рук, показывает нужные клавиши и ведёт к
-            цели по скорости и точности.
+            Яркие уроки, живые подсказки пальцев, цели по точности и скорости.
+            Всё работает как тренировка: короткий заход, понятный результат, следующий уровень.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <LinkButton href="/lessons">Открыть программу</LinkButton>
@@ -26,7 +26,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-3">
-          <Card className="bg-accent text-accent-fg">
+          <Card className="bg-gradient-to-br from-accent via-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-pink))] text-accent-fg">
             <div className="text-xs uppercase tracking-wide opacity-80">План на сегодня</div>
             <div className="mt-2 text-2xl font-semibold">10 минут практики</div>
             <p className="mt-2 text-sm opacity-85">
@@ -98,7 +98,7 @@ export default function HomePage() {
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-bg-elev p-4 shadow-soft">
+    <div className="neon-card rounded-lg border border-border bg-bg-elev p-4 shadow-soft">
       <div className="text-xs uppercase tracking-wide text-fg-subtle">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
     </div>

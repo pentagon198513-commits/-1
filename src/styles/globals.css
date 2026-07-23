@@ -3,31 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --bg: 250 250 250;
+  --bg: 245 247 255;
   --bg-elev: 255 255 255;
-  --fg: 15 15 17;
-  --fg-muted: 82 82 91;
-  --fg-subtle: 161 161 170;
-  --border: 228 228 231;
-  --accent: 79 70 229;
+  --fg: 18 23 42;
+  --fg-muted: 76 86 112;
+  --fg-subtle: 137 147 174;
+  --border: 213 222 255;
+  --accent: 124 58 237;
   --accent-fg: 255 255 255;
-  --success: 34 197 94;
-  --warning: 234 179 8;
-  --danger: 239 68 68;
+  --success: 16 185 129;
+  --warning: 245 158 11;
+  --danger: 244 63 94;
+  --neon-cyan: 6 182 212;
+  --neon-pink: 236 72 153;
+  --neon-lime: 132 204 22;
 }
 
 .dark {
-  --bg: 10 10 12;
-  --bg-elev: 22 22 26;
-  --fg: 244 244 245;
-  --fg-muted: 161 161 170;
-  --fg-subtle: 113 113 122;
-  --border: 39 39 42;
-  --accent: 129 140 248;
-  --accent-fg: 15 15 17;
-  --success: 74 222 128;
+  --bg: 8 10 24;
+  --bg-elev: 18 23 45;
+  --fg: 248 250 252;
+  --fg-muted: 186 198 229;
+  --fg-subtle: 112 127 163;
+  --border: 55 70 120;
+  --accent: 34 211 238;
+  --accent-fg: 7 10 24;
+  --success: 52 211 153;
   --warning: 250 204 21;
-  --danger: 248 113 113;
+  --danger: 251 113 133;
+  --neon-cyan: 34 211 238;
+  --neon-pink: 244 114 182;
+  --neon-lime: 190 242 100;
 }
 
 html,
@@ -38,6 +44,10 @@ body {
 
 body {
   @apply bg-bg text-fg antialiased;
+  background:
+    radial-gradient(circle at 16% 12%, rgb(var(--neon-cyan) / 0.18), transparent 28rem),
+    radial-gradient(circle at 86% 4%, rgb(var(--neon-pink) / 0.16), transparent 24rem),
+    linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg)) 45%, rgb(var(--accent) / 0.05));
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
@@ -69,4 +79,47 @@ canvas {
 .typing-text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: 0.02em;
+}
+
+.neon-card {
+  background:
+    linear-gradient(135deg, rgb(var(--bg-elev) / 0.94), rgb(var(--bg-elev) / 0.72)),
+    radial-gradient(circle at top left, rgb(var(--neon-cyan) / 0.2), transparent 16rem);
+  box-shadow:
+    0 18px 45px rgb(var(--accent) / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.45);
+}
+
+.neon-panel {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgb(var(--accent) / 0.18), rgb(var(--neon-pink) / 0.12)),
+    rgb(var(--bg-elev) / 0.9);
+}
+
+.neon-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgb(var(--neon-cyan) / 0.6), rgb(var(--neon-pink) / 0.42), rgb(var(--neon-lime) / 0.35));
+  opacity: 0.18;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+}
+
+.neon-button {
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.28),
+    0 12px 28px rgb(var(--accent) / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+.console-grid {
+  background-image:
+    linear-gradient(rgb(var(--accent) / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--accent) / 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
