@@ -20,20 +20,32 @@ type Marker = {
 const HAND_IMAGE_WIDTH = 1456;
 const HAND_IMAGE_HEIGHT = 1079;
 
-const ACTIVE_MARKERS: Record<Finger, Marker[]> = {
+const FINGER_MARKERS: Record<Finger, Marker[]> = {
   'L-pinky': [{ x: 235, y: 626, rx: 34, ry: 105, rotate: -10 }],
-  'L-ring': [{ x: 332, y: 545, rx: 34, ry: 118, rotate: 7 }],
-  'L-middle': [{ x: 433, y: 541, rx: 36, ry: 126, rotate: 8 }],
-  'L-index': [{ x: 531, y: 622, rx: 36, ry: 102, rotate: -7 }],
+  'L-ring': [{ x: 332, y: 545, rx: 35, ry: 121, rotate: 7 }],
+  'L-middle': [{ x: 433, y: 541, rx: 38, ry: 130, rotate: 8 }],
+  'L-index': [{ x: 531, y: 622, rx: 37, ry: 105, rotate: -7 }],
   thumb: [
-    { x: 614, y: 621, rx: 42, ry: 96, rotate: 10 },
-    { x: 778, y: 617, rx: 42, ry: 96, rotate: -10 },
+    { x: 614, y: 621, rx: 43, ry: 98, rotate: 10 },
+    { x: 778, y: 617, rx: 43, ry: 98, rotate: -10 },
   ],
-  'R-index': [{ x: 829, y: 617, rx: 38, ry: 112, rotate: 7 }],
-  'R-middle': [{ x: 925, y: 548, rx: 38, ry: 126, rotate: -8 }],
-  'R-ring': [{ x: 1024, y: 552, rx: 36, ry: 118, rotate: -8 }],
+  'R-index': [{ x: 829, y: 617, rx: 40, ry: 114, rotate: 7 }],
+  'R-middle': [{ x: 925, y: 548, rx: 40, ry: 130, rotate: -8 }],
+  'R-ring': [{ x: 1024, y: 552, rx: 37, ry: 121, rotate: -8 }],
   'R-pinky': [{ x: 1134, y: 630, rx: 34, ry: 104, rotate: 9 }],
 };
+
+const FINGER_ORDER: Finger[] = [
+  'L-pinky',
+  'L-ring',
+  'L-middle',
+  'L-index',
+  'thumb',
+  'R-index',
+  'R-middle',
+  'R-ring',
+  'R-pinky',
+];
 
 export function HandsGuide({ activeFinger, showLegend = true }: Props) {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -66,7 +78,7 @@ export function HandsGuide({ activeFinger, showLegend = true }: Props) {
           preserveAspectRatio="xMidYMid meet"
         />
 
-        {activeFinger && <ActiveFingerOverlay finger={activeFinger} />}
+        <FingerOverlays activeFinger={activeFinger ?? null} />
       </svg>
 
       {showLegend && <FingerLegend activeFinger={activeFinger ?? null} />}
@@ -74,23 +86,34 @@ export function HandsGuide({ activeFinger, showLegend = true }: Props) {
   );
 }
 
-function ActiveFingerOverlay({ finger }: { finger: Finger }) {
+function FingerOverlays({ activeFinger }: { activeFinger: Finger | null }) {
+  return (
+    <g>
+      {FINGER_ORDER.map((finger) => (
+        <FingerOverlay key={finger} finger={finger} active={activeFinger === finger} />
+      ))}
+    </g>
+  );
+}
+
+function FingerOverlay({ finger, active }: { finger: Finger; active: boolean }) {
   const color = fingerColor(finger);
 
   return (
-    <g filter="url(#reference-active-glow)">
-      {ACTIVE_MARKERS[finger].map((marker, index) => (
+    <g filter={active ? 'url(#reference-active-glow)' : undefined}>
+      {FINGER_MARKERS[finger].map((marker, index) => (
         <ellipse
           key={`${finger}-${index}`}
+          className={active ? 'animate-pulse' : undefined}
           cx={marker.x}
           cy={marker.y}
-          rx={marker.rx}
-          ry={marker.ry}
+          rx={active ? marker.rx + 5 : marker.rx}
+          ry={active ? marker.ry + 7 : marker.ry}
           fill={color}
-          fillOpacity="0.22"
+          fillOpacity={active ? 0.34 : 0.1}
           stroke={color}
-          strokeOpacity="0.95"
-          strokeWidth="6"
+          strokeOpacity={active ? 0.95 : 0}
+          strokeWidth={active ? 8 : 0}
           transform={`rotate(${marker.rotate ?? 0} ${marker.x} ${marker.y})`}
         />
       ))}
@@ -99,21 +122,9 @@ function ActiveFingerOverlay({ finger }: { finger: Finger }) {
 }
 
 function FingerLegend({ activeFinger }: { activeFinger: Finger | null }) {
-  const all: Finger[] = [
-    'L-pinky',
-    'L-ring',
-    'L-middle',
-    'L-index',
-    'thumb',
-    'R-index',
-    'R-middle',
-    'R-ring',
-    'R-pinky',
-  ];
-
   return (
     <div className="grid w-full max-w-2xl grid-cols-2 gap-1.5 text-xs sm:grid-cols-5">
-      {all.map((f) => (
+      {FINGER_ORDER.map((f) => (
         <div
           key={f}
           className={clsx(
@@ -133,21 +144,9 @@ function FingerLegend({ activeFinger }: { activeFinger: Finger | null }) {
 }
 
 export function FingerLegendRow({ active }: { active?: Finger | null }) {
-  const all: Finger[] = [
-    'L-pinky',
-    'L-ring',
-    'L-middle',
-    'L-index',
-    'thumb',
-    'R-index',
-    'R-middle',
-    'R-ring',
-    'R-pinky',
-  ];
-
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-      {all.map((f) => (
+      {FINGER_ORDER.map((f) => (
         <div
           key={f}
           className={clsx(
