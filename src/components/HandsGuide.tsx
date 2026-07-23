@@ -9,31 +9,63 @@ interface Props {
   showLegend?: boolean;
 }
 
+type FingerSpec = {
+  finger: Finger;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  lean: number;
+  joints: number[];
+};
+
+const LEFT_FINGERS: FingerSpec[] = [
+  { finger: 'L-pinky', x: 42, y: 94, w: 30, h: 118, lean: -7, joints: [135, 174] },
+  { finger: 'L-ring', x: 80, y: 58, w: 34, h: 154, lean: -3, joints: [108, 162] },
+  { finger: 'L-middle', x: 121, y: 42, w: 36, h: 170, lean: 0, joints: [98, 158] },
+  { finger: 'L-index', x: 165, y: 68, w: 35, h: 144, lean: 6, joints: [118, 166] },
+];
+
+const RIGHT_FINGERS: FingerSpec[] = [
+  { finger: 'R-pinky', x: 42, y: 94, w: 30, h: 118, lean: -7, joints: [135, 174] },
+  { finger: 'R-ring', x: 80, y: 58, w: 34, h: 154, lean: -3, joints: [108, 162] },
+  { finger: 'R-middle', x: 121, y: 42, w: 36, h: 170, lean: 0, joints: [98, 158] },
+  { finger: 'R-index', x: 165, y: 68, w: 35, h: 144, lean: 6, joints: [118, 166] },
+];
+
 export function HandsGuide({ activeFinger, showLegend = true }: Props) {
   return (
     <div className="flex flex-col items-center gap-4">
       <svg
-        viewBox="0 0 720 300"
-        className="w-full max-w-3xl drop-shadow-[0_18px_34px_rgb(var(--accent)/0.14)]"
+        viewBox="0 0 760 330"
+        className="w-full max-w-4xl drop-shadow-[0_18px_34px_rgb(var(--accent)/0.14)]"
         role="img"
         aria-label="Реалистичная схема расположения рук на клавиатуре"
       >
         <defs>
-          <linearGradient id="skin" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#fff1df" />
-            <stop offset="55%" stopColor="#f3caa8" />
-            <stop offset="100%" stopColor="#d99b73" />
+          <linearGradient id="skin-main" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#fff0dc" />
+            <stop offset="48%" stopColor="#f0c19b" />
+            <stop offset="100%" stopColor="#d18a61" />
           </linearGradient>
-          <linearGradient id="skinShadow" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#f7d7bb" />
-            <stop offset="100%" stopColor="#c88764" />
+          <linearGradient id="skin-side" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#f8d4b5" />
+            <stop offset="100%" stopColor="#bf7955" />
           </linearGradient>
-          <radialGradient id="palmGlow" cx="50%" cy="35%" r="70%">
+          <radialGradient id="palm-light" cx="42%" cy="24%" r="76%">
+            <stop offset="0%" stopColor="#fff5e8" stopOpacity="0.58" />
+            <stop offset="58%" stopColor="#f4c6a3" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#b86748" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="hand-neon" cx="50%" cy="45%" r="68%">
             <stop offset="0%" stopColor="rgb(var(--neon-cyan))" stopOpacity="0.16" />
             <stop offset="100%" stopColor="rgb(var(--accent))" stopOpacity="0" />
           </radialGradient>
-          <filter id="activeGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
+          <filter id="hand-soft-shadow" x="-30%" y="-25%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="16" stdDeviation="14" floodColor="#7c3aed" floodOpacity="0.14" />
+          </filter>
+          <filter id="active-finger-glow" x="-45%" y="-45%" width="190%" height="190%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -41,20 +73,8 @@ export function HandsGuide({ activeFinger, showLegend = true }: Props) {
           </filter>
         </defs>
 
-        <Hand
-          x={78}
-          label="Левая"
-          mirror={false}
-          fingers={['L-pinky', 'L-ring', 'L-middle', 'L-index']}
-          active={activeFinger ?? null}
-        />
-        <Hand
-          x={420}
-          label="Правая"
-          mirror
-          fingers={['R-pinky', 'R-ring', 'R-middle', 'R-index']}
-          active={activeFinger ?? null}
-        />
+        <Hand x={72} label="Левая" fingers={LEFT_FINGERS} active={activeFinger ?? null} />
+        <Hand x={442} label="Правая" fingers={RIGHT_FINGERS} active={activeFinger ?? null} mirror />
       </svg>
 
       {showLegend && (
@@ -95,188 +115,182 @@ export function HandsGuide({ activeFinger, showLegend = true }: Props) {
 function Hand({
   x,
   label,
-  mirror,
   fingers,
   active,
+  mirror = false,
 }: {
   x: number;
   label: string;
-  mirror: boolean;
-  fingers: Finger[];
+  fingers: FingerSpec[];
   active: Finger | null;
+  mirror?: boolean;
 }) {
-  const fingerData = [
-    { finger: fingers[0], x: 12, y: 88, w: 28, h: 104, lean: -8, joints: [128, 160] },
-    { finger: fingers[1], x: 50, y: 50, w: 31, h: 142, lean: -4, joints: [98, 145] },
-    { finger: fingers[2], x: 91, y: 34, w: 32, h: 158, lean: 0, joints: [86, 140] },
-    { finger: fingers[3], x: 134, y: 58, w: 34, h: 134, lean: 6, joints: [104, 148] },
-  ];
-
-  const transform = `translate(${x}, 20) ${mirror ? 'scale(-1,1) translate(-220, 0)' : ''}`;
+  const transform = `translate(${x}, 20) ${mirror ? 'scale(-1,1) translate(-252,0)' : ''}`;
+  const labelTransform = mirror ? 'scale(-1,1) translate(-252,0)' : undefined;
 
   return (
     <g transform={transform}>
       <text
-        x={110}
-        y={14}
+        x={126}
+        y={15}
         textAnchor="middle"
-        fontSize={13}
-        fontWeight={600}
+        fontSize={14}
+        fontWeight={700}
         fill="rgb(var(--fg-subtle))"
-        transform={mirror ? 'scale(-1,1) translate(-220,0)' : undefined}
+        transform={labelTransform}
       >
         {label}
       </text>
 
-      <ellipse cx={111} cy={248} rx={94} ry={18} fill="rgb(var(--accent) / 0.12)" />
+      <ellipse cx={126} cy={284} rx={104} ry={19} fill="rgb(var(--accent) / 0.12)" />
 
-      {fingerData.map((item) => (
-        <FingerShape key={item.finger} {...item} active={active} />
-      ))}
-
-      <Palm active={active === 'thumb'} />
-
-      <Thumb active={active === 'thumb'} mirror={mirror} />
-
-      <path
-        d="M55 218 C82 238, 134 239, 170 217"
-        fill="none"
-        stroke="#b97d5d"
-        strokeOpacity="0.24"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M78 208 C101 220, 132 220, 154 207"
-        fill="none"
-        stroke="#b97d5d"
-        strokeOpacity="0.18"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <g filter="url(#hand-soft-shadow)">
+        <Wrist active={active === 'thumb'} />
+        {fingers.map((item) => (
+          <FingerShape key={item.finger} {...item} active={active} />
+        ))}
+        <Palm active={active === 'thumb'} />
+        <Thumb active={active === 'thumb'} />
+      </g>
     </g>
   );
 }
 
-function FingerShape({
-  finger,
-  x,
-  y,
-  w,
-  h,
-  lean,
-  joints,
-  active,
-}: {
-  finger: Finger;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  lean: number;
-  joints: number[];
-  active: Finger | null;
-}) {
+function Wrist({ active }: { active: boolean }) {
+  return (
+    <path
+      d="M82 235 C99 249, 154 249, 171 234 L190 314 L61 314 Z"
+      fill={active ? fingerColor('thumb') : 'url(#skin-side)'}
+      opacity={active ? 0.72 : 1}
+      stroke={active ? fingerColor('thumb') : '#9e6548'}
+      strokeOpacity={active ? 0.78 : 0.22}
+      strokeWidth="1.5"
+    />
+  );
+}
+
+function FingerShape({ finger, x, y, w, h, lean, joints, active }: FingerSpec & { active: Finger | null }) {
   const isActive = active === finger;
   const color = fingerColor(finger);
+  const path = fingerPath(x, y, w, h, lean);
 
   return (
-    <g filter={isActive ? 'url(#activeGlow)' : undefined}>
+    <g filter={isActive ? 'url(#active-finger-glow)' : undefined}>
       <path
-        d={[
-          `M ${x + w * 0.22} ${y + h}`,
-          `C ${x + lean} ${y + h * 0.72}, ${x + lean * 0.6} ${y + h * 0.28}, ${x + w * 0.35} ${y + 12}`,
-          `C ${x + w * 0.46} ${y + 2}, ${x + w * 0.78} ${y + 2}, ${x + w * 0.88} ${y + 13}`,
-          `C ${x + w + lean * 0.5} ${y + h * 0.3}, ${x + w + lean * 0.4} ${y + h * 0.72}, ${x + w * 0.78} ${y + h}`,
-          `C ${x + w * 0.62} ${y + h + 8}, ${x + w * 0.38} ${y + h + 8}, ${x + w * 0.22} ${y + h}`,
-          'Z',
-        ].join(' ')}
-        fill={isActive ? color : 'url(#skin)'}
-        stroke={isActive ? color : '#b97d5d'}
-        strokeOpacity={isActive ? 0.95 : 0.34}
-        strokeWidth={isActive ? 3 : 1.4}
+        d={path}
+        fill="url(#skin-main)"
+        stroke="#9e6548"
+        strokeOpacity="0.28"
+        strokeWidth="1.4"
       />
+      <path d={path} fill={color} opacity={isActive ? 0.38 : 0} />
       <path
-        d={`M ${x + w * 0.32} ${y + 21} C ${x + w * 0.48} ${y + 15}, ${x + w * 0.72} ${y + 15}, ${x + w * 0.82} ${y + 22}`}
-        fill="none"
-        stroke={isActive ? 'white' : '#fff8f0'}
-        strokeOpacity="0.68"
-        strokeWidth="4"
-        strokeLinecap="round"
+        d={nailPath(x, y, w)}
+        fill="#fff7ec"
+        stroke="#d59a78"
+        strokeOpacity="0.3"
+        strokeWidth="0.9"
       />
       {joints.map((jy) => (
         <path
           key={jy}
-          d={`M ${x + 7} ${jy} C ${x + w * 0.42} ${jy + 5}, ${x + w * 0.72} ${jy + 5}, ${x + w - 6} ${jy}`}
+          d={`M ${x + w * 0.23} ${jy} C ${x + w * 0.42} ${jy + 6}, ${x + w * 0.72} ${jy + 6}, ${
+            x + w * 0.88
+          } ${jy}`}
           fill="none"
-          stroke={isActive ? 'white' : '#9d6b52'}
-          strokeOpacity={isActive ? 0.38 : 0.17}
-          strokeWidth="1.5"
+          stroke={isActive ? color : '#8f5a41'}
+          strokeOpacity={isActive ? 0.42 : 0.16}
+          strokeWidth={isActive ? 2.2 : 1.5}
           strokeLinecap="round"
         />
       ))}
       <circle
-        cx={x + w / 2}
-        cy={195}
-        r={isActive ? 7 : 5}
+        cx={x + w * 0.5}
+        cy={211}
+        r={isActive ? 8 : 5.5}
         fill={color}
-        opacity={isActive ? 1 : 0.62}
+        opacity={isActive ? 1 : 0.6}
       />
     </g>
   );
 }
 
 function Palm({ active }: { active: boolean }) {
+  const color = fingerColor('thumb');
+
   return (
-    <g filter={active ? 'url(#activeGlow)' : undefined}>
+    <g filter={active ? 'url(#active-finger-glow)' : undefined}>
       <path
-        d="M45 174 C43 138, 67 121, 98 124 L143 126 C178 128, 199 154, 193 190 C188 225, 159 249, 110 249 C70 249, 47 222, 45 174 Z"
-        fill={active ? fingerColor('thumb') : 'url(#skin)'}
-        stroke={active ? fingerColor('thumb') : '#b97d5d'}
-        strokeOpacity={active ? 0.95 : 0.32}
-        strokeWidth={active ? 3 : 1.5}
+        d="M52 162 C58 134, 84 119, 112 126 C126 116, 157 118, 178 131 C205 148, 215 184, 204 219 C190 260, 158 277, 111 274 C73 272, 49 248, 43 211 C40 191, 43 174, 52 162 Z"
+        fill="url(#skin-main)"
+        stroke="#9e6548"
+        strokeOpacity="0.3"
+        strokeWidth="1.5"
       />
       <path
-        d="M57 171 C83 183, 153 181, 181 165 C176 198, 154 226, 112 228 C78 230, 58 206, 57 171 Z"
-        fill="url(#palmGlow)"
+        d="M52 162 C58 134, 84 119, 112 126 C126 116, 157 118, 178 131 C205 148, 215 184, 204 219 C190 260, 158 277, 111 274 C73 272, 49 248, 43 211 C40 191, 43 174, 52 162 Z"
+        fill={color}
+        opacity={active ? 0.34 : 0}
       />
       <path
-        d="M78 156 C93 171, 129 173, 148 158"
-        fill="none"
-        stroke="#9d6b52"
-        strokeOpacity="0.16"
-        strokeWidth="1.8"
-        strokeLinecap="round"
+        d="M63 169 C90 183, 158 181, 190 164 C188 197, 161 229, 113 232 C77 234, 57 207, 63 169 Z"
+        fill="url(#palm-light)"
       />
+      <path d="M62 176 C84 197, 158 198, 187 176" fill="none" stroke="#8f5a41" strokeOpacity="0.16" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M78 222 C101 235, 146 235, 170 220" fill="none" stroke="#8f5a41" strokeOpacity="0.16" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M72 152 C89 164, 113 166, 130 154" fill="none" stroke="#8f5a41" strokeOpacity="0.13" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M45 200 C74 219, 173 218, 205 196" fill="url(#hand-neon)" opacity="0.8" />
     </g>
   );
 }
 
-function Thumb({ active, mirror }: { active: boolean; mirror: boolean }) {
+function Thumb({ active }: { active: boolean }) {
   const color = fingerColor('thumb');
+  const path =
+    'M171 176 C198 164, 226 174, 233 197 C240 218, 221 230, 195 225 C176 222, 151 203, 153 190 C154 183, 161 179, 171 176 Z';
+
   return (
-    <g filter={active ? 'url(#activeGlow)' : undefined}>
+    <g filter={active ? 'url(#active-finger-glow)' : undefined}>
       <path
-        d={mirror
-          ? 'M54 176 C20 173, 0 190, 9 212 C18 234, 53 222, 76 201 C84 193, 77 178, 54 176 Z'
-          : 'M166 176 C200 173, 220 190, 211 212 C202 234, 167 222, 144 201 C136 193, 143 178, 166 176 Z'}
-        fill={active ? color : 'url(#skinShadow)'}
-        stroke={active ? color : '#b97d5d'}
-        strokeOpacity={active ? 0.95 : 0.34}
+        d={path}
+        fill="url(#skin-side)"
+        stroke={active ? color : '#9e6548'}
+        strokeOpacity={active ? 0.9 : 0.32}
         strokeWidth={active ? 3 : 1.5}
       />
+      <path d={path} fill={color} opacity={active ? 0.38 : 0} />
       <path
-        d={mirror
-          ? 'M25 195 C35 204, 50 205, 63 195'
-          : 'M195 195 C185 204, 170 205, 157 195'}
+        d="M193 191 C184 201, 171 202, 160 194"
         fill="none"
-        stroke={active ? 'white' : '#fff5ea'}
-        strokeOpacity="0.5"
+        stroke="#fff4e7"
+        strokeOpacity="0.56"
         strokeWidth="3"
         strokeLinecap="round"
       />
+      <path d="M174 211 C184 218, 199 220, 212 215" fill="none" stroke="#8f5a41" strokeOpacity="0.16" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M162 184 C170 192, 177 200, 184 211" fill="none" stroke="#8f5a41" strokeOpacity="0.13" strokeWidth="1.4" strokeLinecap="round" />
     </g>
   );
+}
+
+function fingerPath(x: number, y: number, w: number, h: number, lean: number) {
+  return [
+    `M ${x + w * 0.16} ${y + h}`,
+    `C ${x + lean - 4} ${y + h * 0.72}, ${x + lean * 0.55} ${y + h * 0.28}, ${x + w * 0.31} ${y + 14}`,
+    `C ${x + w * 0.43} ${y + 1}, ${x + w * 0.75} ${y + 1}, ${x + w * 0.89} ${y + 14}`,
+    `C ${x + w + lean * 0.55} ${y + h * 0.3}, ${x + w + lean + 4} ${y + h * 0.73}, ${x + w * 0.83} ${y + h}`,
+    `C ${x + w * 0.65} ${y + h + 10}, ${x + w * 0.35} ${y + h + 10}, ${x + w * 0.16} ${y + h}`,
+    'Z',
+  ].join(' ');
+}
+
+function nailPath(x: number, y: number, w: number) {
+  return [
+    `M ${x + w * 0.28} ${y + 25}`,
+    `C ${x + w * 0.36} ${y + 15}, ${x + w * 0.67} ${y + 15}, ${x + w * 0.78} ${y + 25}`,
+    `C ${x + w * 0.68} ${y + 18}, ${x + w * 0.4} ${y + 18}, ${x + w * 0.28} ${y + 25}`,
+    'Z',
+  ].join(' ');
 }
 
 export function FingerLegendRow({ active }: { active?: Finger | null }) {
